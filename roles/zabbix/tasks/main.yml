@@ -1,0 +1,126 @@
+---
+- name: install zabbix repository
+  yum: name=http://repo.zabbix.com/zabbix/2.2/rhel/6/x86_64/zabbix-release-2.2-1.el6.noarch.rpm
+
+- name: install zabbix
+  yum: name={{ item }}
+  with_items:
+    - zabbix-server-mysql
+    - zabbix-web-mysql
+    - zabbix-web-japanese
+    - zabbix-agent
+    - zabbix-get
+    - ipa-pgothic-fonts
+
+- name: start zabbix automatically
+  service: >
+    name={{ item }}
+    state=running
+    enabled=yes
+  with_items:
+    - zabbix-server
+    - zabbix-agent
+
+- name: start httpd automatically
+  service: >
+    name=httpd
+    state=running
+    enabled=yes
+
+- name: remove welcome.conf
+  file: >
+    path=/etc/httpd/conf.d/welcome.conf
+    state=absent
+  notify: reload httpd
+
+- name: put httpd.conf
+  copy: >
+    src=etc/httpd/conf/httpd.conf
+    dest=/etc/httpd/conf/httpd.conf
+  notify: reload httpd
+
+- name: put zabbix.conf
+  template: >
+    src=etc/httpd/conf.d/zabbix.conf.j2
+    dest=/etc/httpd/conf.d/zabbix.conf
+  notify: reload httpd
+
+- name: create home directory
+  file: >
+    path=/var/lib/zabbix
+    state=directory
+    owner=zabbix
+    group=zabbix
+    mode=0700
+
+- name: create mysql database
+  mysql_db: name=zabbix
+
+- name: get mysql user password
+  shell: >
+    test -f /var/lib/zabbix/.my.cnf
+    && (grep ^password /var/lib/zabbix/.my.cnf | head -1 | awk '{print $3}')
+    || (cat /dev/urandom | tr -dc '[:alnum:]' | head -c 32)
+  changed_when: False
+  register: mysql_user_pass
+
+- name: create mysql user
+  mysql_user: >
+    name=zabbix
+    password={{ mysql_user_pass.stdout }}
+    priv=zabbix.*:ALL
+
+- name: put .my.cnf
+  template: >
+    src=var/lib/zabbix/.my.cnf.j2
+    dest=/var/lib/zabbix/.my.cnf
+    mode=600
+    owner=zabbix
+    group=zabbix
+
+- name: get zabbix version
+  shell: >
+    ls -d zabbix-server-mysql-* | awk -F- '{print $4}' | sort -n
+    chdir=/usr/share/doc
+  changed_when: False
+  register: zabbix_version
+
+- name: import mysql tables
+  shell: >
+    cat /usr/share/doc/zabbix-server-mysql-{{ zabbix_version.stdout }}/create/{schema,images,data}.sql \
+    | mysql zabbix \
+    && touch /root/.zabbix.schema.imported
+    creates=/root/.zabbix.schema.imported
+
+- name: change admin lang
+  script: change_zabbix_lang.sh Admin "{{ zabbix_admin_lang }}"
+  register: result
+  changed_when: '"already changed" not in result.stdout'
+
+- name: remove guest user
+  script: remove_zabbix_user.sh guest
+  register: result
+  changed_when: '"already removed" not in result.stdout'
+
+- name: put zabbix_server.conf
+  template: >
+    src=etc/zabbix/zabbix_server.conf.j2
+    dest=/etc/zabbix/zabbix_server.conf
+    owner=root
+    group=zabbix
+    mode=0640
+  notify: restart zabbix-server
+
+- name: put zabbix.conf.php
+  template: >
+    src=etc/zabbix/web/zabbix.conf.php.j2
+    dest=/etc/zabbix/web/zabbix.conf.php
+    owner=apache
+    group=apache
+
+- name: replace font
+  shell: >
+    unlink /etc/alternatives/zabbix-web-font \
+    && ln -s /usr/share/fonts/ipa-pgothic/ipagp.ttf /etc/alternatives/zabbix-web-font \
+    && touch /root/.zabbix.font.replaced
+    creates=/root/.zabbix.font.replaced
