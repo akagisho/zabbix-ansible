@@ -1,0 +1,36 @@
+---
+- name: install depences
+  yum: name={{ item }}
+  with_items:
+    - python-setuptools
+
+- name: install pip
+  easy_install: name=pip
+
+- name: install awscli
+  pip: name=awscli
+
+- name: create .aws directory
+  file: >
+    dest=/var/lib/zabbix/.aws
+    state=directory
+    owner=zabbix
+    group=zabbix
+    mode=0700
+
+- name: put .aws/credentials
+  template: >
+    src=var/lib/zabbix/.aws/credentials.j2
+    dest=/var/lib/zabbix/.aws/credentials
+    owner=zabbix
+    group=zabbix
+    mode=0600
+  when: aws_access_key_id is defined and aws_secret_access_key is defined
+
+- name: put scripts
+  copy: >
+    src={{ item }}
+    dest=/usr/lib/zabbix/externalscripts/
+    mode=0755
+  with_fileglob:
+    - usr/lib/zabbix/externalscripts/*

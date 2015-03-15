@@ -5,3 +5,4 @@
     - centos6-common
     - mysql
     - zabbix
+    - aws-cli
