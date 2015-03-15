@@ -124,3 +124,11 @@
     && ln -s /usr/share/fonts/ipa-pgothic/ipagp.ttf /etc/alternatives/zabbix-web-font \
     && touch /root/.zabbix.font.replaced
     creates=/root/.zabbix.font.replaced
+
+- name: put external scripts
+  copy: >
+    src={{ item }}
+    dest=/usr/lib/zabbix/externalscripts/
+    mode=0755
+  with_fileglob:
+    - usr/lib/zabbix/externalscripts/*
