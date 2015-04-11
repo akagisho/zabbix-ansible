@@ -132,3 +132,9 @@
     mode=0755
   with_fileglob:
     - usr/lib/zabbix/externalscripts/*
+
+- name: get zapache
+  get_url: >
+    url=https://raw.githubusercontent.com/lorf/zapache/master/zapache
+    dest=/usr/lib/zabbix/externalscripts/zapache.sh
+    mode=0755
