@@ -20,6 +20,13 @@ if [ "$cache" -ot "$cache_timestamp_check" ]; then
     echo "ZBX_NOTSUPPORTED"
     exit 1
   fi
+
+  mysql -sN -h "$HOST" -u "$USER" -p"$PASS" -e "SHOW VARIABLES" >> "$cache"
+  rval=$?
+  if [ $rval != 0 ]; then
+    echo "ZBX_NOTSUPPORTED"
+    exit 1
+  fi
 fi
 
 awk "{if(\$1==\"$KEY\")print \$2}" "$cache"
