@@ -11,6 +11,7 @@
     - zabbix-agent
     - zabbix-get
     - ipa-pgothic-fonts
+    - mod_ssl
 
 - name: start zabbix automatically
   service: >
@@ -39,10 +40,12 @@
     dest=/etc/httpd/conf/httpd.conf
   notify: reload httpd
 
-- name: put zabbix.conf
+- name: put apache config files
   template: >
-    src=etc/httpd/conf.d/zabbix.conf.j2
-    dest=/etc/httpd/conf.d/zabbix.conf
+    src={{ item }}
+    dest=/etc/httpd/conf.d/{{ item | basename | regex_replace('\.j2','') }}
+  with_fileglob:
+    - ../templates/etc/httpd/conf.d/*.j2
   notify: reload httpd
 
 - name: create home directory
