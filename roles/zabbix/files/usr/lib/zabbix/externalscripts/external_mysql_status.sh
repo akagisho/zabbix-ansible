@@ -16,14 +16,7 @@ touch -d "@$((`date +%s` - ($cache_seconds - 1)))" "$cache_timestamp_check"
 if [ "$cache" -ot "$cache_timestamp_check" ]; then
   tmp=`mktemp $cache.XXXXX`
 
-  mysql -sN -h "$HOST" -u "$USER" -p"$PASS" -e "SHOW GLOBAL STATUS" > "$tmp"
-  rval=$?
-  if [ $rval != 0 ]; then
-    echo "ZBX_NOTSUPPORTED"
-    exit 1
-  fi
-
-  mysql -sN -h "$HOST" -u "$USER" -p"$PASS" -e "SHOW VARIABLES" >> "$tmp"
+  mysql -sN -h "$HOST" -u "$USER" -p"$PASS" -e "SHOW GLOBAL STATUS; SHOW VARIABLES" > "$tmp"
   rval=$?
   if [ $rval != 0 ]; then
     echo "ZBX_NOTSUPPORTED"
