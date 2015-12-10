@@ -14,19 +14,23 @@ cache_timestamp_check="$TMPDIR/$cache_prefix.ts"
 touch -d "@$((`date +%s` - ($cache_seconds - 1)))" "$cache_timestamp_check"
 
 if [ "$cache" -ot "$cache_timestamp_check" ]; then
-  mysql -sN -h "$HOST" -u "$USER" -p"$PASS" -e "SHOW GLOBAL STATUS" > "$cache"
+  tmp=`mktemp $cache.XXXXX`
+
+  mysql -sN -h "$HOST" -u "$USER" -p"$PASS" -e "SHOW GLOBAL STATUS" > "$tmp"
   rval=$?
   if [ $rval != 0 ]; then
     echo "ZBX_NOTSUPPORTED"
     exit 1
   fi
 
-  mysql -sN -h "$HOST" -u "$USER" -p"$PASS" -e "SHOW VARIABLES" >> "$cache"
+  mysql -sN -h "$HOST" -u "$USER" -p"$PASS" -e "SHOW VARIABLES" >> "$tmp"
   rval=$?
   if [ $rval != 0 ]; then
     echo "ZBX_NOTSUPPORTED"
     exit 1
   fi
+
+  mv "$tmp" "$cache"
 fi
 
 awk "{if(\$1==\"$KEY\")print \$2}" "$cache"
