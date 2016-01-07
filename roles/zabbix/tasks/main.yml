@@ -12,6 +12,7 @@
     - zabbix-get
     - ipa-pgothic-fonts
     - mod_ssl
+    - https://dl.fedoraproject.org/pub/epel/6/x86_64/xml2-0.5-7.el6.x86_64.rpm
 
 - name: start zabbix automatically
   service: >
