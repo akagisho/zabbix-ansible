@@ -7,7 +7,7 @@ TYPE=$3
 [ -z "$DOMAIN" ] && DOMAIN=$HOST
 [ -z "$TYPE" ] && TYPE="A"
 
-RESULT=`dig @$HOST $DOMAIN $TYPE +time=5 +tries=1 2> /dev/null`
+RESULT=`dig @$HOST $DOMAIN $TYPE +time=4 +tries=2 2> /dev/null`
 
 if [ "`echo \"$RESULT\" | grep \"status: NOERROR\"`" = "" ]; then
   echo "ZBX_NOTSUPPORTED"
