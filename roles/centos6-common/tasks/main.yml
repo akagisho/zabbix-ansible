@@ -14,3 +14,8 @@
     dest=/etc/selinux/config
     regexp=^SELINUX=
     line=SELINUX=disabled
+
+- name: install remi repository
+  yum: name={{ item }}
+  with_items:
+    - http://rpms.famillecollet.com/enterprise/remi-release-6.rpm

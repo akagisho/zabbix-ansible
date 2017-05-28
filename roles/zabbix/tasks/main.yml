@@ -1,6 +1,17 @@
 ---
+- name: install PHP 5.6
+  yum: name={{ item }} enablerepo=remi,remi-php56
+  with_items:
+    - php
+    - php-mysql
+    - php-mbstring
+    - php-bcmath
+    - php-gd
+    - php-xml
+  notify: reload httpd
+
 - name: install zabbix repository
-  yum: name=http://repo.zabbix.com/zabbix/2.2/rhel/6/x86_64/zabbix-release-2.2-1.el6.noarch.rpm
+  yum: name=http://repo.zabbix.com/zabbix/3.0/rhel/6/x86_64/zabbix-release-3.0-1.el6.noarch.rpm
 
 - name: install zabbix
   yum: name={{ item }}
@@ -13,6 +24,7 @@
     - ipa-pgothic-fonts
     - mod_ssl
     - https://dl.fedoraproject.org/pub/epel/6/x86_64/xml2-0.5-7.el6.x86_64.rpm
+  notify: reload httpd
 
 - name: start zabbix automatically
   service: >
@@ -91,7 +103,7 @@
 
 - name: import mysql tables
   shell: >
-    cat /usr/share/doc/zabbix-server-mysql-{{ zabbix_version.stdout }}/create/{schema,images,data}.sql \
+    zcat /usr/share/doc/zabbix-server-mysql-{{ zabbix_version.stdout }}/create.sql.gz \
     | mysql zabbix \
     && touch /root/.zabbix.schema.imported
     creates=/root/.zabbix.schema.imported

@@ -1,15 +1,9 @@
 ---
 - name: install mysql
-  yum: name={{ item }}
+  yum: name={{ item }} enablerepo=remi
   with_items:
     - mysql-server
     - MySQL-python
-
-- name: put my.cnf
-  copy: >
-    src=etc/my.cnf
-    dest=/etc/my.cnf
-  notify: restart mysqld
 
 - name: start mysqld automatically
   service: >
