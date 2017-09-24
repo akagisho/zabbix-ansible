@@ -4,7 +4,11 @@ Setting up zabbix server using by Ansible.
 
 ## Requirements
 
+* CentOS 7.x
 * Ansible
+
+For local development environment:
+
 * VirtualBox
 * Vagrant 1.5+
 
@@ -12,7 +16,7 @@ Setting up zabbix server using by Ansible.
 
 ### production
 
-First of all, install CentOS 6.x to the server.
+First of all, install CentOS 7.x to the server.
 
 Create Ansible inventory file.
 

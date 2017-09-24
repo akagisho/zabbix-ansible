@@ -1,14 +1,15 @@
 ---
 - name: install mysql
-  yum: name={{ item }} enablerepo=remi
+  yum: name={{ item }}
   with_items:
-    - mysql-server
+    - mariadb
+    - mariadb-server
     - MySQL-python
 
-- name: start mysqld automatically
+- name: start mariadb automatically
   service: >
-    name=mysqld
-    state=running
+    name=mariadb
+    state=started
     enabled=yes
 
 - name: get mysql root password

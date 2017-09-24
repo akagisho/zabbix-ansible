@@ -2,7 +2,7 @@
 - hosts: default
   sudo: yes
   roles:
-    - centos6-common
-    - mysql
+    - centos7-common
+    - mariadb
     - zabbix
 #    - aws-cli

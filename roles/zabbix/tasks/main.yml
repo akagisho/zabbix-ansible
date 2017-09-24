@@ -1,6 +1,8 @@
 ---
-- name: install PHP 5.6
-  yum: name={{ item }} enablerepo=remi,remi-php56
+- name: install PHP 7.1
+  yum: >
+    name={{ item }}
+    enablerepo=remi-php71
   with_items:
     - php
     - php-mysql
@@ -8,28 +10,37 @@
     - php-bcmath
     - php-gd
     - php-xml
+    - php-ldap
   notify: reload httpd
 
 - name: install zabbix repository
-  yum: name=http://repo.zabbix.com/zabbix/3.0/rhel/6/x86_64/zabbix-release-3.0-1.el6.noarch.rpm
+  yum: name=http://repo.zabbix.com/zabbix/3.4/rhel/7/x86_64/zabbix-release-3.4-1.el7.centos.noarch.rpm
 
 - name: install zabbix
   yum: name={{ item }}
   with_items:
     - zabbix-server-mysql
-    - zabbix-web-mysql
-    - zabbix-web-japanese
     - zabbix-agent
     - zabbix-get
+    - dejavu-sans-fonts
     - ipa-pgothic-fonts
     - mod_ssl
-    - https://dl.fedoraproject.org/pub/epel/6/x86_64/xml2-0.5-7.el6.x86_64.rpm
+
+- name: install zabbix web
+  shell: LANG=C rpm -ivh --nodeps {{ item }}
+  with_items:
+    - http://repo.zabbix.com/zabbix/3.4/rhel/7/x86_64/zabbix-web-mysql-3.4.1-1.el7.noarch.rpm
+    - http://repo.zabbix.com/zabbix/3.4/rhel/7/x86_64/zabbix-web-3.4.1-1.el7.noarch.rpm
+    - http://repo.zabbix.com/zabbix/3.4/rhel/7/x86_64/zabbix-web-japanese-3.4.1-1.el7.noarch.rpm
+  register: result
+  changed_when: '"installing" in result.stdout'
+  failed_when: '"error" in result.stderr'
   notify: reload httpd
 
 - name: start zabbix automatically
   service: >
     name={{ item }}
-    state=running
+    state=started
     enabled=yes
   with_items:
     - zabbix-server
@@ -38,19 +49,17 @@
 - name: start httpd automatically
   service: >
     name=httpd
-    state=running
+    state=started
     enabled=yes
 
-- name: remove welcome.conf
+- name: remove unused apache config files
   file: >
-    path=/etc/httpd/conf.d/welcome.conf
+    path={{ item }}
     state=absent
-  notify: reload httpd
-
-- name: put httpd.conf
-  copy: >
-    src=etc/httpd/conf/httpd.conf
-    dest=/etc/httpd/conf/httpd.conf
+  with_items:
+    - /etc/httpd/conf.d/autoindex.conf
+    - /etc/httpd/conf.d/userdir.conf
+    - /etc/httpd/conf.d/welcome.conf
   notify: reload httpd
 
 - name: put apache config files

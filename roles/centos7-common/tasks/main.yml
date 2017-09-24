@@ -1,4 +1,8 @@
 ---
+- name: check os version
+  fail: msg='OS is NOT CentOS 7.x'
+  when: ansible_distribution != 'CentOS' or ansible_distribution_major_version != '7'
+
 - name: install packages
   yum: name={{ item }}
   with_items:
@@ -18,4 +22,4 @@
 - name: install remi repository
   yum: name={{ item }}
   with_items:
-    - http://rpms.famillecollet.com/enterprise/remi-release-6.rpm
+    - http://rpms.famillecollet.com/enterprise/remi-release-7.rpm
