@@ -25,6 +25,7 @@
     - dejavu-sans-fonts
     - ipa-pgothic-fonts
     - mod_ssl
+    - bind-utils
 
 - name: install zabbix web
   shell: LANG=C rpm -ivh --nodeps {{ item }}
