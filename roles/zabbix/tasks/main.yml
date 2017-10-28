@@ -146,10 +146,11 @@
 
 - name: replace font
   shell: >
-    unlink /etc/alternatives/zabbix-web-font \
-    && ln -s /usr/share/fonts/ipa-pgothic/ipagp.ttf /etc/alternatives/zabbix-web-font \
-    && touch /root/.zabbix.font.replaced
-    creates=/root/.zabbix.font.replaced
+    readlink /etc/alternatives/zabbix-web-font | grep -qF ipagp.ttf \
+    || (unlink /etc/alternatives/zabbix-web-font \
+    && ln -sv /usr/share/fonts/ipa-pgothic/ipagp.ttf /etc/alternatives/zabbix-web-font)
+  register: result
+  changed_when: '"ipagp.ttf" in result.stdout'
 
 - name: put external scripts
   copy: >
