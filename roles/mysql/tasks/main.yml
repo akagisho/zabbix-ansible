@@ -1,0 +1,74 @@
+---
+- name: uninstall mariadb
+  yum: >
+    name=mariadb-libs
+    state=removed
+
+- name: add repository
+  yum: name=https://dev.mysql.com/get/mysql80-community-release-el7-1.noarch.rpm
+
+- name: install mysql 8.0
+  yum: name={{ item }}
+  with_items:
+    - mysql-community-devel
+    - mysql-community-server
+    - MySQL-python
+  notify: restart mysqld
+
+- name: start mysql automatically
+  service: >
+    name=mysqld
+    state=started
+    enabled=yes
+
+- name: put my.cnf
+  copy: >
+    src=etc/my.cnf
+    dest=/etc/my.cnf
+  register: mycnf_result
+
+- name: restart mysqld
+  service: >
+    name=mysqld
+    state=restarted
+  when: mycnf_result.changed
+
+- name: get mysql root password
+  shell: >
+    test -f /root/.my.cnf
+    && (grep ^password /root/.my.cnf | head -1 | awk '{print $3}')
+    || (cat /dev/urandom | tr -dc '[:graph:]' | tr -d "'\"\`#" | head -c 16)
+  changed_when: False
+  register: mysql_root_pass
+
+- name: reset mysql temporary root password
+  shell: >
+    test -f /root/.my.cnf
+    || (MYSQL_TEMP_PASS=$(grep 'temporary password' /var/log/mysqld.log | awk -F ' ' '{print $(NF)}')
+    && mysql --user root --password="$MYSQL_TEMP_PASS" --connect-expired-password --execute="ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY '{{ mysql_root_pass.stdout }}';"
+    && systemctl restart mysqld.service
+    && echo changed)
+  register: result
+  changed_when: '"changed" in result.stdout'
+
+- name: put .my.cnf
+  template: >
+    src=root/.my.cnf.j2
+    dest=/root/.my.cnf
+    mode=600
+
+- name: remove test database
+  mysql_db: >
+    name=test
+    state=absent
+
+- name: get validate_password_policy value
+  shell: mysql -sNe "show variables like 'validate_password.policy';" | awk '{print $2}'
+  register: validate_password_policy
+  changed_when: False
+
+- debug: msg="{{ validate_password_policy.stdout }}"
+
+- name: set validate_password_policy to LOW
+  shell: mysql -e "set global validate_password.policy=LOW;"
+  when: validate_password_policy.stdout != 'LOW'

@@ -3,6 +3,6 @@
   sudo: yes
   roles:
     - centos7-common
-    - mariadb
+    - mysql
     - zabbix
 #    - aws-cli

@@ -90,7 +90,7 @@
   shell: >
     test -f /var/lib/zabbix/.my.cnf
     && (grep ^password /var/lib/zabbix/.my.cnf | head -1 | awk '{print $3}')
-    || (cat /dev/urandom | tr -dc '[:alnum:]' | head -c 32)
+    || (cat /dev/urandom | tr -dc '[:graph:]' | tr -d "'\"\`#" | head -c 16)
   changed_when: False
   register: mysql_user_pass
 
