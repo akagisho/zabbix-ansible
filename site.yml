@@ -3,6 +3,7 @@
   sudo: yes
   roles:
     - centos7-common
+    - postfix
     - mysql
     - zabbix
 #    - aws-cli

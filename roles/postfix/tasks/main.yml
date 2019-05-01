@@ -1,0 +1,16 @@
+---
+- name: install postfix
+  yum: name={{ item }}
+  with_items:
+    - postfix
+
+- name: start postfix automatically
+  service: >
+    name=postfix
+    state=started
+    enabled=yes
+
+- name: start postfix
+  service: >
+    name=postfix
+    state=started
