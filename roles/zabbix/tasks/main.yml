@@ -13,6 +13,12 @@
     - php-ldap
   notify: reload httpd
 
+- name: install cpanminus
+  get_url: >
+    url=https://cpanmin.us/
+    dest=/usr/local/bin/cpanm
+    mode=0755
+
 - name: install jq
   get_url: >
     url=https://github.com/stedolan/jq/releases/download/jq-1.5/jq-linux64
@@ -156,13 +162,19 @@
   register: result
   changed_when: '"ipagp.ttf" in result.stdout'
 
+- name: put cpanfile
+  copy: >
+    src=usr/lib/zabbix/externalscripts/cpanfile
+    dest=/usr/lib/zabbix/externalscripts/cpanfile
+  notify: install cpan modules
+
 - name: put external scripts
   copy: >
     src={{ item }}
     dest=/usr/lib/zabbix/externalscripts/
     mode=0755
   with_fileglob:
-    - usr/lib/zabbix/externalscripts/*
+    - usr/lib/zabbix/externalscripts/*.*
 
 - name: get zapache
   get_url: >

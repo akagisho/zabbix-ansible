@@ -8,3 +8,8 @@
   service: >
     name=httpd
     state=reloaded
+
+- name: install cpan modules
+  shell: >
+    /usr/local/bin/cpanm --installdeps -L local .
+    chdir=/usr/lib/zabbix/externalscripts

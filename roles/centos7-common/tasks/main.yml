@@ -7,6 +7,8 @@
   yum: name={{ item }}
   with_items:
     - libselinux-python
+    - gcc
+    - make
 
 - name: disable SELinux (Sorry, Ishikawa-san)
   shell: getenforce | grep -q Disabled || (setenforce 0 && echo changed)
