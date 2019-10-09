@@ -81,6 +81,13 @@
     - ../templates/etc/httpd/conf.d/*.j2
   notify: reload httpd
 
+- name: set expose_php to off
+  lineinfile:
+    path: /etc/php.ini
+    regexp: '^expose_php\s?='
+    line: "expose_php = Off"
+  notify: reload httpd
+
 - name: create home directory
   file: >
     path=/var/lib/zabbix
