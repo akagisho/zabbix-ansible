@@ -236,6 +236,7 @@ DBPassword={{ mysql_user_pass.stdout }}
 # Range: 0-1000
 # Default:
 # StartPingers=1
+StartPingers={{ zabbix_start_pingers | default(8) }}
 
 ### Option: StartDiscoverers
 #	Number of pre-forked instances of discoverers.

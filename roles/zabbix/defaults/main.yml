@@ -1,6 +1,7 @@
 ---
 zabbix_timezone: "Asia/Tokyo"
 zabbix_admin_lang: "ja_JP"
+zabbix_start_pingers: 8
 
 ssl_certificate_file: "/etc/pki/tls/certs/localhost.crt"
 ssl_certificate_key_file: "/etc/pki/tls/private/localhost.key"
