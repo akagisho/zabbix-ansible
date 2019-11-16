@@ -123,8 +123,6 @@ DBUser=zabbix
 # Default:
 # DBPassword=
 
-DBPassword={{ mysql_user_pass.stdout }}
-
 ### Option: DBSocket
 #	Path to MySQL socket.
 #
@@ -236,8 +234,6 @@ DBPassword={{ mysql_user_pass.stdout }}
 # Range: 0-1000
 # Default:
 # StartPingers=1
-
-StartPingers={{ zabbix_start_pingers | default(8) }}
 
 ### Option: StartDiscoverers
 #	Number of pre-forked instances of discoverers.
@@ -474,7 +470,7 @@ SNMPTrapperFile=/var/log/snmptrap/snmptrap.log
 # Default:
 # Timeout=3
 
-Timeout={{ zabbix_timeout | default(15) }}
+Timeout=4
 
 ### Option: TrapperTimeout
 #	Specifies how many seconds trapper may spend processing new data.
