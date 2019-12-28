@@ -13,6 +13,14 @@
     - php-ldap
   notify: reload httpd
 
+- name: install Perl modules
+  yum: >
+    name={{ item }}
+  with_items:
+    - perl-Data-Dumper
+    - perl-Module-CoreList
+    - perl-ExtUtils-MakeMaker
+
 - name: install cpanminus
   get_url: >
     url=https://cpanmin.us/
