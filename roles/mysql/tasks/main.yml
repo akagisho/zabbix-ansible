@@ -36,7 +36,7 @@
 - name: get mysql root password
   shell: >
     test -f /root/.my.cnf
-    && (grep ^password /root/.my.cnf | head -1 | awk '{print $3}')
+    && (grep ^password /root/.my.cnf | head -1 | awk '{print $3}' | tr -d "'")
     || (cat /dev/urandom | tr -dc '[:alnum:]!#%&()*+,-./;<=>?@[]^_{|}~' | head -c 32)
   changed_when: False
   register: mysql_root_pass
