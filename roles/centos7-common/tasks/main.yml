@@ -25,3 +25,9 @@
   yum: name={{ item }}
   with_items:
     - http://rpms.famillecollet.com/enterprise/remi-release-7.rpm
+
+- name: disable rpcbind
+  systemd:
+    name: rpcbind
+    enabled: no
+    state: stopped
